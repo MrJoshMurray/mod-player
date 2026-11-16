@@ -7,6 +7,20 @@
   "store": {
     "summary": "Play tracker modules with live, PCM-driven visualizers.",
     "description": "Browse and play tracker modules in your Music folder or its subfolders. Supports the formats reported by the installed libopenmpt build, including classic MOD, S3M, XM, and IT modules. Skip tracks, seek, adjust volume or mute, and switch between spectrum, oscilloscope, and waterfall visualizers. No music is bundled.",
+    "locales": {
+      "ja": {
+        "title": "Mod Player",
+        "summary": "トラッカーモジュールを再生し、PCM駆動のビジュアライザーを楽しめます。"
+      },
+      "zh-CN": {
+        "title": "Mod Player",
+        "summary": "播放 Tracker 音乐模块，并体验 PCM 实时驱动的可视化效果。"
+      },
+      "es": {
+        "title": "Mod Player",
+        "summary": "Reproduce módulos tracker con visualizadores en tiempo real basados en PCM."
+      }
+    },
     "categories": ["Media"],
     "screenshots": [
       "screenshot/app-simulator-dark-darwin.png",
