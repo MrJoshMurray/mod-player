@@ -16,7 +16,7 @@
     "license": "MIT",
     "source_repo": "https://github.com/MrJoshMurray/mod-player",
     "author": { "github": "MrJoshMurray", "display_name": "MrJoshua" },
-    "share_code": "TODO",
+    "share_code": "MODP",
     "permissions": {
       "camera": false,
       "microphone": false,
