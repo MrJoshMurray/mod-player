@@ -12,8 +12,10 @@
 
 namespace screen {
 
-BaseScreen::BaseScreen(viewmodel::BaseViewModel& view_model, app::AssetManager& assets)
-    : view_model_(view_model), assets_(assets) {}
+BaseScreen::BaseScreen(viewmodel::BaseViewModel& view_model,
+                       app::AssetManager& assets,
+                       bool show_nav_bar)
+    : view_model_(view_model), assets_(assets), show_nav_bar_(show_nav_bar) {}
 
 BaseScreen::~BaseScreen() {
     title_bar_.reset();
@@ -39,12 +41,15 @@ void BaseScreen::init() {
     title_bar_ = std::make_unique<view::widgets::TitleBar>(root_, view_model_, assets_);
     title_bar_->build();
 
-    nav_bar_ = std::make_unique<view::widgets::NavBar>(root_, view_model_, assets_);
-    nav_bar_->build();
+    if (show_nav_bar_) {
+        nav_bar_ = std::make_unique<view::widgets::NavBar>(root_, view_model_, assets_);
+        nav_bar_->build();
+    }
 
     content_ = lv_obj_create(root_);
     lv_obj_remove_style_all(content_);
-    lv_obj_set_size(content_, LV_PCT(100), view::kScreenHeight - view::kTitleBarHeight - view::kNavBarHeight);
+    const auto nav_bar_height = show_nav_bar_ ? view::kNavBarHeight : 0;
+    lv_obj_set_size(content_, LV_PCT(100), view::kScreenHeight - view::kTitleBarHeight - nav_bar_height);
     lv_obj_align(content_, LV_ALIGN_TOP_MID, 0, view::kTitleBarHeight);
     lv_obj_clear_flag(content_, LV_OBJ_FLAG_SCROLLABLE);
     reactive::bind_theme(content_, view_model_.dark_mode_subject(), reactive::ThemeRole::Surface);
@@ -62,6 +67,12 @@ viewmodel::BaseViewModel& BaseScreen::view_model() {
 
 app::AssetManager& BaseScreen::assets() {
     return assets_;
+}
+
+void BaseScreen::set_playback_indicator(bool playing, bool paused) {
+    if (title_bar_) {
+        title_bar_->set_playback_state(playing, paused);
+    }
 }
 
 } // namespace screen

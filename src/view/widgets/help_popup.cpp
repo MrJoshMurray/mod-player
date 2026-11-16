@@ -21,18 +21,15 @@ struct HelpRow {
     const char* action;
 };
 
-constexpr std::array<HelpRow, 5> kAppleRows = {{
-    {"HOLD ESC / 4", "Exit"},
-    {"5", "Text weight"},
-    {"6", "Light / dark"},
-    {"7", "Version info"},
-    {"8", "Open counter"},
-}};
-
-constexpr std::array<HelpRow, 3> kButterRows = {{
-    {"ESC", "Back to home"},
-    {"Z / LEFT", "Decrease"},
-    {"C / RIGHT", "Increase"},
+constexpr std::array<HelpRow, 8> kAppleRows = {{
+    {"F/X UP/DOWN", "Previous / next track"},
+    {"SPACE / FN+Q", "Play / pause"},
+    {"BACKSPACE", "Stop playback"},
+    {"FN+W / FN+E", "Tap: skip, hold: seek"},
+    {"FN+S / FN+D", "Volume down / up"},
+    {"FN+A", "Mute / unmute"},
+    {"TAP Z/C L/R", "Tap: track, hold: seek"},
+    {"TAB / ESC/4", "Visualizer / hold to exit"},
 }};
 
 } // namespace
@@ -58,7 +55,7 @@ void HelpPopup::build() {
 
     panel_ = lv_obj_create(core_obj_);
     lv_obj_remove_style_all(panel_);
-    lv_obj_set_size(panel_, 292, 146);
+    lv_obj_set_size(panel_, 292, 166);
     lv_obj_center(panel_);
     lv_obj_set_style_radius(panel_, 6, 0);
     lv_obj_set_style_bg_opa(panel_, LV_OPA_COVER, 0);
@@ -85,11 +82,11 @@ void HelpPopup::build() {
 
     auto* rows = lv_obj_create(panel_);
     lv_obj_remove_style_all(rows);
-    lv_obj_set_size(rows, 268, 88);
+    lv_obj_set_size(rows, 268, 112);
     lv_obj_align(rows, LV_ALIGN_TOP_MID, 0, 35);
     lv_obj_set_flex_flow(rows, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_flex_align(rows, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
-    lv_obj_set_style_pad_row(rows, 1, 0);
+    lv_obj_set_style_pad_row(rows, 0, 0);
     lv_obj_clear_flag(rows, LV_OBJ_FLAG_SCROLLABLE);
 
     auto* key_font = assets_.load_standard_font(11);
@@ -97,7 +94,7 @@ void HelpPopup::build() {
     for (auto& widgets : rows_) {
         widgets.row = lv_obj_create(rows);
         lv_obj_remove_style_all(widgets.row);
-        lv_obj_set_size(widgets.row, LV_PCT(100), 16);
+        lv_obj_set_size(widgets.row, LV_PCT(100), 14);
         lv_obj_clear_flag(widgets.row, LV_OBJ_FLAG_SCROLLABLE);
 
         widgets.key = lv_label_create(widgets.row);
@@ -156,16 +153,16 @@ bool HelpPopup::visible() const {
 }
 
 void HelpPopup::update_rows(model::AppPage page) {
-    const bool butter = page == model::AppPage::Butter;
-    lv_label_set_text(page_badge_, butter ? "COUNTER" : "HOME");
+    LV_UNUSED(page);
+    lv_label_set_text(page_badge_, "PLAYER");
     for (std::size_t i = 0; i < rows_.size(); ++i) {
-        const bool row_visible = butter ? i < kButterRows.size() : i < kAppleRows.size();
+        const bool row_visible = i < kAppleRows.size();
         if (!row_visible) {
             lv_obj_add_flag(rows_[i].row, LV_OBJ_FLAG_HIDDEN);
             continue;
         }
         lv_obj_remove_flag(rows_[i].row, LV_OBJ_FLAG_HIDDEN);
-        const auto& row = butter ? kButterRows[i] : kAppleRows[i];
+        const auto& row = kAppleRows[i];
         lv_label_set_text(rows_[i].key, row.key);
         lv_label_set_text(rows_[i].action, row.action);
     }

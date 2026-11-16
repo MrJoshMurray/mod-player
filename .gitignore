@@ -55,8 +55,10 @@
 # =========================
 # Build directories
 # =========================
+/tracker files/
 /build/
 /build-*/
+/_CPack_Packages/
 /cmake-build-*/
 /out/
 /bin/

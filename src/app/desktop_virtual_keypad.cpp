@@ -170,11 +170,11 @@ uint32_t fn_key_for(char key) {
         case '0':
             return SDLK_F10;
         case 'q':
-            return SDLK_AUDIOPLAY;
+            return platform::kKeyPlayPause;
         case 'w':
-            return SDLK_AUDIOPREV;
+            return platform::kKeyRewind;
         case 'e':
-            return SDLK_AUDIONEXT;
+            return platform::kKeyFastForward;
         case 'u':
             return SDLK_BRIGHTNESSDOWN;
         case 'i':
@@ -184,11 +184,11 @@ uint32_t fn_key_for(char key) {
         case 'p':
             return SDLK_F12;
         case 'a':
-            return SDLK_MUTE;
+            return platform::kKeyMute;
         case 's':
-            return SDLK_VOLUMEDOWN;
+            return platform::kKeyVolumeDown;
         case 'd':
-            return SDLK_VOLUMEUP;
+            return platform::kKeyVolumeUp;
         case 'f':
             return LV_KEY_UP;
         case 'h':
@@ -288,6 +288,18 @@ std::string output_key_name(uint32_t key) {
             return "help";
         case platform::kKeyPrintScreen:
             return "print-screen";
+        case platform::kKeyVolumeDown:
+            return "volume-down";
+        case platform::kKeyVolumeUp:
+            return "volume-up";
+        case platform::kKeyMute:
+            return "mute";
+        case platform::kKeyPlayPause:
+            return "media-play-pause";
+        case platform::kKeyRewind:
+            return "media-rewind";
+        case platform::kKeyFastForward:
+            return "media-fast-forward";
         case SDLK_INSERT:
             return "insert";
         case LV_KEY_UP:
@@ -377,11 +389,13 @@ bool DesktopVirtualKeypad::handle_pointer(int32_t x, int32_t y, bool pressed) {
         if (hit == kEscapeKeyIndex) {
             emit_key_state(LV_KEY_ESC, true);
         }
-        else if (hit >= 0 && static_cast<size_t>(hit) < kMatrixKeyCount &&
-                 kKeys[static_cast<size_t>(hit)].kind == KeyKind::Character &&
-                 kKeys[static_cast<size_t>(hit)].base == '4' && mode_ == Mode::Base &&
-                 !fn_active_ && !ctrl_active_ && !alt_active_) {
-            held_pointer_key_ = '4';
+           else if (hit >= 0 && static_cast<size_t>(hit) < kMatrixKeyCount &&
+                  kKeys[static_cast<size_t>(hit)].kind == KeyKind::Character &&
+                  (kKeys[static_cast<size_t>(hit)].base == '4' ||
+                   kKeys[static_cast<size_t>(hit)].base == 'z' ||
+                   kKeys[static_cast<size_t>(hit)].base == 'c') &&
+                  mode_ == Mode::Base && !fn_active_ && !ctrl_active_ && !alt_active_) {
+              held_pointer_key_ = static_cast<uint8_t>(kKeys[static_cast<size_t>(hit)].base);
             emit_key_state(held_pointer_key_, true);
         }
         return hit >= 0;

@@ -21,7 +21,9 @@ namespace screen {
 
 class BaseScreen {
 public:
-    BaseScreen(viewmodel::BaseViewModel& view_model, app::AssetManager& assets);
+    BaseScreen(viewmodel::BaseViewModel& view_model,
+               app::AssetManager& assets,
+               bool show_nav_bar = true);
     virtual ~BaseScreen();
 
     BaseScreen(const BaseScreen&) = delete;
@@ -35,10 +37,12 @@ protected:
 
     viewmodel::BaseViewModel& view_model();
     app::AssetManager& assets();
+    void set_playback_indicator(bool playing, bool paused);
 
 private:
     viewmodel::BaseViewModel& view_model_;
     app::AssetManager& assets_;
+    bool show_nav_bar_{true};
     lv_obj_t* root_{nullptr};
     lv_obj_t* content_{nullptr};
     std::unique_ptr<view::widgets::TitleBar> title_bar_;

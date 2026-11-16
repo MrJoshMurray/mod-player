@@ -100,7 +100,7 @@ void TitleBar::build() {
     auto* title = lv_label_create(core_obj_);
     lv_label_bind_text(title, view_model_.title_subject(), nullptr);
     lv_label_set_long_mode(title, LV_LABEL_LONG_DOT);
-    lv_obj_set_width(title, 142);
+    lv_obj_set_width(title, 118);
     const lv_font_t* title_font = assets_.load_standard_font(14);
     lv_obj_set_style_text_font(title, title_font ? title_font : &lv_font_montserrat_14, 0);
     lv_obj_align(title, LV_ALIGN_LEFT_MID, 8, 0);
@@ -119,6 +119,13 @@ void TitleBar::build() {
     if (!icon_font) {
         icon_font = &lv_font_montserrat_14;
     }
+    playback_indicator_ = lv_label_create(core_obj_);
+    lv_obj_set_size(playback_indicator_, 18, 22);
+    lv_obj_set_style_text_font(playback_indicator_, icon_font, 0);
+    lv_obj_set_style_text_align(playback_indicator_, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align_to(playback_indicator_, title, LV_ALIGN_OUT_RIGHT_MID, 4, 3);
+    set_playback_state(false, false);
+
     const lv_font_t* status_font =
         assets_.load_standard_font(14, app::StandardFontWeight::Regular);
     if (!status_font) {
@@ -138,6 +145,27 @@ void TitleBar::build() {
     refresh_time();
     refresh_device_status();
     refresh_timer_ = lv_timer_create(refresh_timer_cb, 1000, this);
+}
+
+void TitleBar::set_playback_state(bool playing, bool paused) {
+    if (!playback_indicator_) {
+        return;
+    }
+
+    const bool dark_mode = view_model_.is_dark_mode();
+    const uint8_t state = playing ? 0 : paused ? 1 : 2;
+    if (playback_indicator_initialized_ && playback_indicator_state_ == state &&
+        playback_indicator_dark_mode_ == dark_mode) {
+        return;
+    }
+
+    lv_label_set_text(playback_indicator_, playing ? "\uE3D0" : paused ? "\uE39E" : "\uE46C");
+    const auto colors = view::palette(dark_mode);
+    const auto color = playing ? colors.success : paused ? colors.warning : colors.error;
+    lv_obj_set_style_text_color(playback_indicator_, color, 0);
+    playback_indicator_state_ = state;
+    playback_indicator_dark_mode_ = dark_mode;
+    playback_indicator_initialized_ = true;
 }
 
 void TitleBar::refresh_time() {

@@ -16,7 +16,7 @@
 #include <utility>
 
 #ifndef APP_NAME
-#define APP_NAME "cardputerzero-utility"
+#define APP_NAME "mod-player"
 #endif
 
 #ifndef APP_CMAKE_ASSETS_ROOT

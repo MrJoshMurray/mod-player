@@ -191,6 +191,40 @@ uint32_t map_evdev_key(uint16_t code) {
             return LV_KEY_LEFT;
         case KEY_RIGHT:
             return LV_KEY_RIGHT;
+        case KEY_UP:
+            return LV_KEY_UP;
+        case KEY_DOWN:
+            return LV_KEY_DOWN;
+        case KEY_ENTER:
+            return LV_KEY_ENTER;
+        case KEY_BACKSPACE:
+            return LV_KEY_BACKSPACE;
+        case KEY_SPACE:
+            return ' ';
+        case KEY_TAB:
+            return LV_KEY_NEXT;
+        case KEY_MUTE:
+            return kKeyMute;
+        case KEY_F:
+            return 'f';
+        case KEY_X:
+            return 'x';
+        case KEY_U:
+            return 'u';
+        case KEY_I:
+            return 'i';
+        case KEY_VOLUMEDOWN:
+            return kKeyVolumeDown;
+        case KEY_VOLUMEUP:
+            return kKeyVolumeUp;
+        case KEY_PLAYPAUSE:
+            return kKeyPlayPause;
+        case KEY_PREVIOUSSONG:
+        case KEY_REWIND:
+            return kKeyRewind;
+        case KEY_NEXTSONG:
+        case KEY_FASTFORWARD:
+            return kKeyFastForward;
         case KEY_Z:
             return 'z';
         case KEY_C:
@@ -225,9 +259,15 @@ bool has_nav_keys(int fd) {
         return (key_bits[code / bits_per_word] & (1UL << (code % bits_per_word))) != 0;
     };
 
-    return has_key(KEY_ESC) || has_key(KEY_LEFT) || has_key(KEY_RIGHT) || has_key(KEY_Z) ||
-           has_key(KEY_C) || has_key(KEY_4) || has_key(KEY_5) || has_key(KEY_6) ||
-           has_key(KEY_7) || has_key(KEY_8) || has_key(KEY_SYSRQ) || has_key(KEY_HELP);
+    return has_key(KEY_ESC) || has_key(KEY_LEFT) || has_key(KEY_RIGHT) || has_key(KEY_UP) ||
+           has_key(KEY_DOWN) || has_key(KEY_ENTER) || has_key(KEY_BACKSPACE) || has_key(KEY_SPACE) || has_key(KEY_TAB) ||
+           has_key(KEY_F) || has_key(KEY_X) || has_key(KEY_U) || has_key(KEY_I) ||
+           has_key(KEY_VOLUMEDOWN) || has_key(KEY_VOLUMEUP) || has_key(KEY_MUTE) ||
+           has_key(KEY_PLAYPAUSE) ||
+           has_key(KEY_PREVIOUSSONG) || has_key(KEY_REWIND) || has_key(KEY_NEXTSONG) ||
+           has_key(KEY_FASTFORWARD) || has_key(KEY_Z) || has_key(KEY_C) ||
+           has_key(KEY_4) || has_key(KEY_5) || has_key(KEY_6) || has_key(KEY_7) ||
+           has_key(KEY_8) || has_key(KEY_SYSRQ) || has_key(KEY_HELP);
 }
 
 void evdev_read_cb(lv_indev_t* indev, lv_indev_data_t* data) {
@@ -423,6 +463,18 @@ const char* describe_key(uint32_t key) {
             return "PrintScreen";
         case kKeyHelp:
             return "Help";
+        case kKeyVolumeDown:
+            return "VolumeDown";
+        case kKeyVolumeUp:
+            return "VolumeUp";
+        case kKeyMute:
+            return "Mute";
+        case kKeyPlayPause:
+            return "PlayPause";
+        case kKeyRewind:
+            return "Rewind";
+        case kKeyFastForward:
+            return "FastForward";
         default:
             break;
     }

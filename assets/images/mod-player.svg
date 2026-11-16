@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="72" fill="#07111c"/>
+  <rect x="34" y="38" width="444" height="436" rx="36" fill="#263a4d" stroke="#050a11" stroke-width="12"/>
+  <path d="M52 76V66Q52 54 64 54H448" fill="none" stroke="#8ba1ad" stroke-width="8" stroke-linecap="square"/>
+  <path d="M462 438V448Q462 460 450 460H64" fill="none" stroke="#101b29" stroke-width="8" stroke-linecap="square"/>
+  <rect x="60" y="66" width="392" height="302" rx="12" fill="#09131f" stroke="#101b27" stroke-width="8"/>
+  <path d="M68 78Q68 72 76 72H436Q444 72 444 80V119H68Z" fill="#47345d"/>
+  <circle cx="88" cy="96" r="8" fill="#ffd45b"/>
+  <circle cx="112" cy="96" r="8" fill="#ff668c"/>
+  <circle cx="136" cy="96" r="8" fill="#48e5cc"/>
+  <text x="165" y="105" fill="#f1f0df" font-family="Menlo, Monaco, monospace" font-size="27" font-weight="bold">4CH MOD</text>
+  <rect x="78" y="132" width="356" height="220" fill="#0c1925"/>
+  <path d="M78 132H434M78 187H434M78 242H434M78 297H434M78 352H434" stroke="#243442" stroke-width="2"/>
+  <path d="M168 132V352M257 132V352M346 132V352" stroke="#243442" stroke-width="2"/>
+  <text x="96" y="158" fill="#48e5cc" font-family="Menlo, Monaco, monospace" font-size="18" font-weight="bold">01</text>
+  <text x="185" y="158" fill="#ff668c" font-family="Menlo, Monaco, monospace" font-size="18" font-weight="bold">02</text>
+  <text x="274" y="158" fill="#ffd45b" font-family="Menlo, Monaco, monospace" font-size="18" font-weight="bold">03</text>
+  <text x="363" y="158" fill="#78a8ff" font-family="Menlo, Monaco, monospace" font-size="18" font-weight="bold">04</text>
+  <path d="M92 178H104V167H116V181H128V162H140V176H152V169H164" fill="none" stroke="#48e5cc" stroke-width="7" stroke-linejoin="miter"/>
+  <path d="M181 178H193V171H205V184H217V164H229V177H241V168H253" fill="none" stroke="#ff668c" stroke-width="7" stroke-linejoin="miter"/>
+  <path d="M270 178H282V166H294V181H306V169H318V184H330V163H342" fill="none" stroke="#ffd45b" stroke-width="7" stroke-linejoin="miter"/>
+  <path d="M359 178H371V168H383V183H395V163H407V177H419V170H431" fill="none" stroke="#78a8ff" stroke-width="7" stroke-linejoin="miter"/>
+  <path d="M92 233H104V221H116V237H128V217H140V232H152V224H164" fill="none" stroke="#48e5cc" stroke-width="7" stroke-linejoin="miter"/>
+  <path d="M181 233H193V225H205V240H217V219H229V233H241V222H253" fill="none" stroke="#ff668c" stroke-width="7" stroke-linejoin="miter"/>
+  <path d="M270 233H282V218H294V236H306V224H318V239H330V216H342" fill="none" stroke="#ffd45b" stroke-width="7" stroke-linejoin="miter"/>
+  <path d="M359 233H371V223H383V238H395V218H407V233H419V225H431" fill="none" stroke="#78a8ff" stroke-width="7" stroke-linejoin="miter"/>
+  <path d="M92 288H104V276H116V293H128V270H140V287H152V279H164" fill="none" stroke="#48e5cc" stroke-width="7" stroke-linejoin="miter"/>
+  <path d="M181 288H193V280H205V295H217V273H229V289H241V278H253" fill="none" stroke="#ff668c" stroke-width="7" stroke-linejoin="miter"/>
+  <path d="M270 288H282V272H294V292H306V279H318V296H330V270H342" fill="none" stroke="#ffd45b" stroke-width="7" stroke-linejoin="miter"/>
+  <path d="M359 288H371V278H383V293H395V272H407V288H419V280H431" fill="none" stroke="#78a8ff" stroke-width="7" stroke-linejoin="miter"/>
+  <path d="M92 343H104V332H116V346H128V327H140V342H152V334H164" fill="none" stroke="#48e5cc" stroke-width="7" stroke-linejoin="miter"/>
+  <path d="M181 343H193V335H205V349H217V329H229V344H241V334H253" fill="none" stroke="#ff668c" stroke-width="7" stroke-linejoin="miter"/>
+  <path d="M270 343H282V328H294V346H306V334H318V350H330V326H342" fill="none" stroke="#ffd45b" stroke-width="7" stroke-linejoin="miter"/>
+  <path d="M359 343H371V333H383V348H395V328H407V344H419V335H431" fill="none" stroke="#78a8ff" stroke-width="7" stroke-linejoin="miter"/>
+  <rect x="68" y="380" width="376" height="70" rx="8" fill="#182a3a" stroke="#111c29" stroke-width="4"/>
+  <rect x="92" y="394" width="48" height="42" rx="5" fill="#30475a"/>
+  <path d="M110 402L130 415L110 428Z" fill="#48e5cc"/>
+  <rect x="150" y="394" width="48" height="42" rx="5" fill="#30475a"/>
+  <rect x="166" y="406" width="16" height="18" rx="2" fill="#ff668c"/>
+  <path d="M229 420H245V403H261V428H277V397H293V420H309V405H325" fill="none" stroke="#ffd45b" stroke-width="7" stroke-linejoin="miter"/>
+  <path d="M344 415H354M366 415H376M388 415H398M410 415H420" stroke="#78a8ff" stroke-width="8" stroke-linecap="square"/>
+</svg>

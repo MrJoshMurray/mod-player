@@ -73,6 +73,7 @@ private:
     int16_t encoder_diff_{0};
     bool pointer_pressed_{false};
     bool encoder_pressed_{false};
+    uint32_t held_text_key_{0};
     bool dark_mode_{false};
     bool initialized_{false};
 };

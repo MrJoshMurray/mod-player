@@ -21,6 +21,7 @@ public:
     ~TitleBar() override;
 
     void build() override;
+    void set_playback_state(bool playing, bool paused);
 
 private:
     void refresh_time();
@@ -34,8 +35,12 @@ private:
     lv_obj_t* ethernet_label_{nullptr};
     lv_obj_t* battery_icon_label_{nullptr};
     lv_obj_t* battery_percent_label_{nullptr};
+    lv_obj_t* playback_indicator_{nullptr};
     lv_timer_t* refresh_timer_{nullptr};
     uint32_t refresh_tick_{0};
+    bool playback_indicator_initialized_{false};
+    uint8_t playback_indicator_state_{0};
+    bool playback_indicator_dark_mode_{false};
 };
 
 } // namespace view::widgets

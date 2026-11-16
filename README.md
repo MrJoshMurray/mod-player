@@ -10,18 +10,18 @@
     />
   <img
     src="./screenshot/app-simulator-light-darwin.png"
-    alt="CardputerZero Template running in the desktop simulator"
+    alt="Mod Player running in the desktop simulator"
     width="315"
   />
   </picture>
 </p>
 
 <div align="center">
-    <h1>CardputerZero Application Template</h1>
+    <h1>Mod Player</h1>
 </div>
 
 <div align="center">
-  <p>A simple starter template for building embedded Linux GUI applications with LVGL and CMake.</p>
+  <p>A compact CardputerZero module player with PCM-driven visualizers.</p>
 </div>
 
 <p align="center" style="margin: 20px 0; display: flex; justify-content: center; flex-wrap: wrap; gap: 12px;">
@@ -39,7 +39,8 @@
     />
   </a>
 </p>
-It is intended to be used as a clean development baseline: desktop builds use an SDL hardware-accelerated compositor for fast UI preview, while device builds use the Linux/LVGL platform drivers.
+The player uses the CardputerZero LVGL application structure. Desktop builds use an SDL compositor
+and SDL audio; device builds use Linux display/input drivers and ALSA audio output.
 
 ## Project Overview
 
@@ -52,10 +53,31 @@ In this example project, we used small MVVM-style structure around LVGL:
 - **Data flow**: user input triggers widget callbacks, callbacks update `BaseViewModel`, view model publishes subjects, and bound UI objects refresh automatically through LVGL observers.
 - **Platform layer**: platform code owns Linux input integration and other hardware-facing services. The nav bar maps hardware/keyboard keys `4` to `8`, plus `ESC` for quit.
 
-Current demo UI:
+Current player UI:
 
-- Page 1: Hello World, font weight toggle, LVGL version info, light/dark theme toggle, page navigation.
-- Page 2: Counter page, increment/decrement actions, simple page navigation.
+- Scans the user's music folder for supported tracker modules; no music is bundled.
+- Shows a five-row playlist, selected title, playback time, progress, and playback status.
+- Provides spectrum, oscilloscope, and waterfall views computed from decoded PCM.
+- Uses SDL2 output in the desktop simulator and ALSA output on Linux devices.
+
+Supported extensions: `.mod`, `.s3m`, `.xm`, `.it`, `.mptm`, `.med`, `.669`, `.stm`, `.okt`, and
+`.mo3`. MO3 playback depends on the codecs enabled in the installed libopenmpt build and is not a
+required capability.
+
+The player searches recursively under `$CARDPUTERZERO_MUSIC_DIR`, then `$XDG_MUSIC_DIR`, then the
+`XDG_MUSIC_DIR` entry in `user-dirs.dirs`, and finally `~/Music`. Modules can be placed directly in
+that folder or in a subfolder such as `~/Music/Tracker`. The directory remains user-owned; the
+package contains no tracks. The status cell reports playback state, file errors, and the folder to
+populate when no modules are found.
+
+Keyboard controls: `F`/`Up` selects the previous module and `X`/`Down` selects the next in the
+browser without interrupting playback. Tap `Fn+W`, `Z`, or `Left` to select and play the previous
+module; tap `Fn+E`, `C`, or `Right` to select and play the next. Hold those keys to seek while a
+module is playing. Space or `Fn+Q` toggles play/pause; Backspace (`BKSPC`) stops. `Fn+A`
+toggles mute, and `Fn+S`/`Fn+D` adjust volume in 5% steps. Tab cycles visualizer modes. Enter or
+`5` plays the selected module, and `7`/`8` also cycle visualizers. `Esc` stops active playback;
+when stopped, hold `Esc` to exit. Holding `4` also exits. Press `U` for dark mode or `I` for light
+mode; the choice is saved for the next launch.
 
 ## Repository Layout
 
@@ -104,9 +126,9 @@ Common CMake cache options:
 | Option | Default | Description |
 | --- | --- | --- |
 | `USE_DESKTOP` | `ON` | Build SDL desktop simulator when `ON`; build embedded Linux target when `OFF`. |
-| `APP_NAME` | `cardputerzero-utility` | Application name used by installed asset lookup. |
+| `APP_NAME` | `mod-player` | Application name used by installed asset lookup. |
 | `APP_ASSETS_ROOT` | empty | Optional runtime asset root. Expected layout includes `fonts/`, `images/`, etc. |
-| `APP_CONFIG_FILE` | platform default | Optional config path. Defaults to `config/template-app.conf` for desktop builds and `/etc/template-app.conf` for device builds. |
+| `APP_CONFIG_FILE` | platform default | Optional config path. Defaults to `config/mod-player.conf` for desktop builds and `/etc/mod-player.conf` for device builds. |
 | `APP_KEY_INPUT_DEVICE` | empty | Optional Linux evdev device path, e.g. `/dev/input/event0`. Empty means auto-scan `/dev/input/event*`. |
 | `APP_FRAMEBUFFER_DEVICE` | `/dev/fb0` | Linux framebuffer device used by embedded builds when `APP_USE_DRM=OFF`. |
 | `APP_USE_DRM` | `OFF` | Use LVGL's Linux DRM/KMS backend instead of fbdev for embedded builds. |
@@ -119,7 +141,7 @@ Asset lookup order:
 2. source-tree `assets/` for development
 3. `/usr/share/<APP_NAME>/` for installed deployments
 
-Theme startup behavior is configured in `config/template-app.conf`:
+Theme startup behavior is configured in `config/mod-player.conf`:
 
 ```ini
 [application]
@@ -127,9 +149,9 @@ dark_mode=yes
 ```
 
 Set `dark_mode` to `yes` or `no`. The parser also accepts `true`/`false` and `1`/`0`.
-Installed device builds use `/etc/template-app.conf` as the system default. Changing the theme
+Installed device builds use `/etc/mod-player.conf` as the system default. Changing the theme
 from the navigation bar (keyboard shortcut `6`) writes a per-user override to
-`$XDG_CONFIG_HOME/template-app/template-app.conf`, or `~/.config/template-app/template-app.conf`
+`$XDG_CONFIG_HOME/mod-player/mod-player.conf`, or `~/.config/mod-player/mod-player.conf`
 when `XDG_CONFIG_HOME` is not set. The per-user file takes precedence on the next launch.
 
 ## Desktop Builds
@@ -147,6 +169,8 @@ Current dependencies info:
 | zlib | `1.3.1` | System package manager or `vcpkg.json` override | Compression dependency used by image libraries. |
 | SDL2 | `2.32.54` | System package manager or `vcpkg.json` override | Desktop simulator display and input backend. |
 | FreeType | `2.13.3` | System package manager or `vcpkg.json` override | Runtime TTF font rendering. |
+| libopenmpt | `0.8.x` | System package manager | Module decoding; MO3 depends on optional codecs in that build. |
+| ALSA | System | Device sysroot (`libasound2`) | CardputerZero audio output. Desktop output uses SDL2 audio. |
 
 > Windows vcpkg installs use the versions above through manifest mode, with the registry baseline pinned in `vcpkg-configuration.json`.
 
@@ -165,6 +189,8 @@ sudo apt install -y \
   libfmt-dev \
   libsdl2-dev \
   libfreetype-dev \
+  libopenmpt-dev \
+  libasound2-dev \
   zlib1g-dev
 ```
 
@@ -190,9 +216,9 @@ cmake --build --preset linux-x86-64-dbg
 Run:
 
 ```shell
-./build/linux-x86-64/Debug/cardputerzero-utility
+./build/linux-x86-64/Debug/mod-player
 # or launch release build
-# ./build/linux-x86-64/Release/cardputerzero-utility
+# ./build/linux-x86-64/Release/mod-player
 ```
 
 ### macOS Desktop
@@ -214,31 +240,36 @@ brew install \
   fmt \
   sdl2 \
   freetype \
+  libopenmpt \
   dpkg \
   zlib
 ```
 
-Configure for Apple Silicon:
+Configure a clean Apple Silicon build. The separate build directory avoids reusing cached
+dependencies from another Homebrew architecture:
 
 ```shell
-cmake --preset darwin-arm64
+cmake -S . -B build/darwin-arm64-tracker \
+  -G "Ninja Multi-Config" \
+  -DCMAKE_OSX_ARCHITECTURES=arm64 \
+  -DCMAKE_CONFIGURATION_TYPES="Debug;Release" \
+  -DCMAKE_PREFIX_PATH="$(brew --prefix)"
 ```
 
 Build:
 
 ```shell
-cmake --build --preset darwin-arm64-dbg
-# alternatively, you can run release build
-# cmake --build --preset darwin-arm64-rel
+cmake --build build/darwin-arm64-tracker --config Debug
 ```
 
 Run:
 
 ```shell
-./build/darwin-arm64/Debug/cardputerzero-utility
-# or launch release build
-# ./build/darwin-arm64/Release/cardputerzero-utility
+./build/darwin-arm64-tracker/Debug/mod-player
 ```
+
+Set `CARDPUTERZERO_MUSIC_DIR` to use a different local folder, for example
+`CARDPUTERZERO_MUSIC_DIR="$PWD/tracker files"`.
 
 For Intel macOS, use the `darwin-x86-64` configure preset and matching build preset:
 
@@ -247,9 +278,9 @@ cmake --preset darwin-x86-64
 cmake --build --preset darwin-x86-64-dbg
 # alternatively, you can run release build
 # cmake --build --preset darwin-x86-64-rel
-./build/darwin-x86-64/Debug/cardputerzero-utility
+./build/darwin-x86-64/Debug/mod-player
 # or launch release build
-# ./build/darwin-x86-64/Release/cardputerzero-utility
+# ./build/darwin-x86-64/Release/mod-player
 ```
 
 ### Windows Desktop
@@ -315,11 +346,11 @@ Configure and build with MSVC:
 ```powershell
 cmake --preset win32-msvc
 cmake --build --preset win32-msvc-dbg
-.\build\msvc\Debug\cardputerzero-utility.exe
+.\build\msvc\Debug\mod-player.exe
 
 # alternatively for release build
 # cmake --build --preset win32-msvc-rel
-# .\build\msvc\Release\cardputerzero-utility.exe
+# .\build\msvc\Release\mod-player.exe
 ```
 
 Configure and build with MinGW-w64:
@@ -344,11 +375,11 @@ Configure and build with MinGW-w64:
 ```powershell
 cmake --preset win32-mingw64
 cmake --build --preset win32-mingw64-dbg
-.\build\mingw64\Debug\cardputerzero-utility.exe
+.\build\mingw64\Debug\mod-player.exe
 
 # alternatively for release build
 # cmake --build --preset win32-mingw64-rel
-#.\build\mingw64\Release\cardputerzero-utility.exe
+#.\build\mingw64\Release\mod-player.exe
 ```
 > [!NOTE]
 > `VCPKG` will handle the dependencies during CMake configuration process automatically, 
@@ -402,7 +433,7 @@ By default, the debian package is copied to '$HOME' folder, normally it's under 
 On your device, install the copied package with `apt` and replace the package file name with the one you copied:
 
 ```shell
-sudo apt install --no-install-recommends ./Cardputer Zero Utility_0.2.1_rev1_arm64.deb
+sudo apt install --no-install-recommends ./Mod Player_0.2.1_rev1_arm64.deb
 ```
 
 
@@ -478,20 +509,20 @@ Debian packages are produced with CPack and written to `dist/`. The package file
 Default example:
 
 ```text
-dist/Cardputer Zero Utility_0.2.1_rev1_arm64.deb
+dist/Mod Player_0.2.1_rev1_arm64.deb
 ```
 
 Package layout:
 
 | Path | Content |
 | --- | --- |
-| `/usr/bin/cardputerzero-utility` | Application executable. |
-| `/etc/template-app.conf` | System-default application settings, including the startup theme. |
-| `/usr/share/cardputerzero-utility/` | Runtime assets: fonts, images, audio. |
-| `/usr/share/APPLaunch/applications/cardputerzero-utility.desktop` | APPLaunch launcher entry. |
-| `/usr/share/APPLaunch/share/images/cardputerzero-utility*.png` | APPLaunch launcher icons/fallbacks. |
-| `/usr/lib/systemd/system/cardputerzero-utility.service` | Optional systemd service for embedded autostart. |
-| `/usr/share/doc/cardputerzero-utility/` | README and third-party asset license notes. |
+| `/usr/bin/mod-player` | Application executable. |
+| `/etc/mod-player.conf` | System-default application settings, including the startup theme. |
+| `/usr/share/mod-player/` | Runtime assets: fonts, images, audio. |
+| `/usr/share/APPLaunch/applications/mod-player.desktop` | APPLaunch launcher entry. |
+| `/usr/share/APPLaunch/share/images/mod-player*.png` | APPLaunch launcher icons/fallbacks. |
+| `/usr/lib/systemd/system/mod-player.service` | Optional systemd service for embedded autostart. |
+| `/usr/share/doc/mod-player/` | README and third-party asset license notes. |
 
 Build and package:
 

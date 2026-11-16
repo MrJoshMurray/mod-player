@@ -19,6 +19,8 @@
                 "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchains/cp0-aarch64-linux-gnu.cmake",
                 "CM0_SDK_ROOT": "${sourceDir}/.cache/sdk_bsp-src",
                 "CMAKE_SYSROOT": "${sourceDir}/.cache/sdk_bsp-src",
+                "APP_INSTALL_SYSTEMD_SERVICE": "OFF",
+                "APP_MAINTAINER": "MrJoshua <josh@tigerstyle.co.uk>",
                 "CM0_ALLOW_FETCH_DEPS": "ON"
             }
         },

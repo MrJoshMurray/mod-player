@@ -1,5 +1,5 @@
 {
-  "name": "template-app-simulator-on-windows",
+  "name": "mod-player-simulator-on-windows",
   "version": "1.0.0",
   "dependencies": [
     "fmt",
@@ -7,7 +7,8 @@
     "libjpeg-turbo",
     "zlib",
     "sdl2",
-    "freetype"
+    "freetype",
+    "libopenmpt"
   ],
   "overrides": [
     {

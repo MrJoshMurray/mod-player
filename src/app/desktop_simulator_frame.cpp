@@ -49,6 +49,18 @@ uint32_t map_control_key(SDL_Keycode key) {
         case SDLK_KP_ENTER:
         case SDLK_RETURN:
             return LV_KEY_ENTER;
+        case SDLK_AUDIOPLAY:
+            return platform::kKeyPlayPause;
+        case SDLK_MUTE:
+            return platform::kKeyMute;
+        case SDLK_AUDIOPREV:
+            return platform::kKeyRewind;
+        case SDLK_AUDIONEXT:
+            return platform::kKeyFastForward;
+        case SDLK_VOLUMEDOWN:
+            return platform::kKeyVolumeDown;
+        case SDLK_VOLUMEUP:
+            return platform::kKeyVolumeUp;
         case SDLK_TAB:
         case SDLK_PAGEDOWN:
             return LV_KEY_NEXT;
@@ -65,6 +77,10 @@ uint32_t map_control_key(SDL_Keycode key) {
         case SDLK_4:
         case SDLK_KP_4:
             return '4';
+        case SDLK_z:
+            return 'z';
+        case SDLK_c:
+            return 'c';
         default:
             return 0;
     }
@@ -121,12 +137,12 @@ lv_display_t* DesktopSimulatorFrame::display() const {
 bool DesktopSimulatorFrame::initialize_sdl() {
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
     SDL_SetHint("SDL_WINDOWS_DPI_AWARENESS", "permonitorv2");
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER) != 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS | SDL_INIT_TIMER) != 0) {
         LOG_ERROR("SDL_Init failed: {}", SDL_GetError());
         return false;
     }
 
-    window_ = SDL_CreateWindow("Template App",
+    window_ = SDL_CreateWindow("Mod Player",
                                SDL_WINDOWPOS_CENTERED,
                                SDL_WINDOWPOS_CENTERED,
                                kWidth,
@@ -376,6 +392,13 @@ void DesktopSimulatorFrame::handle_event(const SDL_Event& event, bool& running) 
             const auto control = map_control_key(event.key.keysym.sym);
             if (control != 0) {
                 emit_physical_key(static_cast<int32_t>(control), event.type == SDL_KEYDOWN);
+                if (control == 'z' || control == 'c') {
+                    if (event.type == SDL_KEYDOWN) {
+                        held_text_key_ = control;
+                    } else if (held_text_key_ == control) {
+                        held_text_key_ = 0;
+                    }
+                }
             }
             return;
         }
@@ -387,7 +410,8 @@ void DesktopSimulatorFrame::handle_event(const SDL_Event& event, bool& running) 
                 std::copy_n(reinterpret_cast<const uint8_t*>(cursor),
                             std::min<uint32_t>(length, sizeof(key)),
                             reinterpret_cast<uint8_t*>(&key));
-                if (keypad_ && key != '4') {
+                const auto normalized_key = key >= 'A' && key <= 'Z' ? key + ('a' - 'A') : key;
+                if (keypad_ && key != '4' && normalized_key != held_text_key_) {
                     keypad_->emit_key(key);
                 }
                 cursor += length;

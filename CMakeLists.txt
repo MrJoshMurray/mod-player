@@ -6,7 +6,7 @@
 
 cmake_minimum_required(VERSION 3.31)
 
-project(cardputerzero-utility VERSION 0.2.1 LANGUAGES C CXX)
+project(mod-player VERSION 0.2.1 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -20,7 +20,7 @@ set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 set(USE_DESKTOP ON CACHE BOOL "Build the desktop emulator target with LVGL SDL support")
 set(APP_NAME "${PROJECT_NAME}" CACHE STRING "Application name used for installed asset lookup")
 set(APP_ASSETS_ROOT "" CACHE PATH "Optional runtime assets root. Expected subdirectories include fonts/")
-set(APP_CONFIG_FILE "" CACHE FILEPATH "Application config file; defaults to the repository file on desktop and /etc/template-app.conf on device")
+set(APP_CONFIG_FILE "" CACHE FILEPATH "Application config file; defaults to the repository file on desktop and /etc/mod-player.conf on device")
 set(APP_KEY_INPUT_DEVICE "" CACHE STRING "Optional Linux evdev keyboard/keypad device path, e.g. /dev/input/event0")
 set(APP_FRAMEBUFFER_DEVICE "/dev/fb0" CACHE STRING "Linux framebuffer device path used by embedded builds")
 set(APP_DRM_DEVICE "/dev/dri/card0" CACHE STRING "Linux DRM device path used when APP_USE_DRM=ON")
@@ -33,9 +33,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "Export compile_commands.json" F
 
 if(NOT APP_CONFIG_FILE)
     if(USE_DESKTOP)
-        set(APP_CONFIG_FILE "${CMAKE_CURRENT_SOURCE_DIR}/config/template-app.conf")
+        set(APP_CONFIG_FILE "${CMAKE_CURRENT_SOURCE_DIR}/config/mod-player.conf")
     else()
-        set(APP_CONFIG_FILE "/etc/template-app.conf")
+        set(APP_CONFIG_FILE "/etc/mod-player.conf")
     endif()
 endif()
 
@@ -398,6 +398,28 @@ endif()
 # ====================================================
 # Platform sources
 # ====================================================
+# Tracker decoder and device audio output
+if(USE_DESKTOP)
+    find_path(OPENMPT_INCLUDE_DIR libopenmpt/libopenmpt.hpp REQUIRED)
+    find_library(OPENMPT_LIBRARY NAMES openmpt REQUIRED)
+else()
+    cm0_find_header(OPENMPT_INCLUDE_DIR libopenmpt/libopenmpt.hpp ${CM0_INCLUDE_HINTS})
+    cm0_find_library(OPENMPT_LIBRARY openmpt)
+    cm0_find_header(ALSA_INCLUDE_DIR alsa/asoundlib.h ${CM0_INCLUDE_HINTS})
+    cm0_find_library(ALSA_LIBRARY asound)
+
+    if(NOT OPENMPT_INCLUDE_DIR OR NOT OPENMPT_LIBRARY)
+        message(FATAL_ERROR
+            "CardputerZero tracker playback requires libopenmpt headers and library in ${CM0_SYSROOT}."
+        )
+    endif()
+    if(NOT ALSA_INCLUDE_DIR OR NOT ALSA_LIBRARY)
+        message(FATAL_ERROR
+            "CardputerZero tracker playback requires ALSA headers and libasound in ${CM0_SYSROOT}."
+        )
+    endif()
+endif()
+
 # Create application platform sources and static library
 file(GLOB_RECURSE PLATFORM_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/platform/*.c"
@@ -426,7 +448,25 @@ target_compile_definitions(${PROJECT_NAME}_platform
 target_link_libraries(${PROJECT_NAME}_platform
     PUBLIC
         lvgl
+        ${OPENMPT_LIBRARY}
 )
+
+target_include_directories(${PROJECT_NAME}_platform
+    PRIVATE
+        ${OPENMPT_INCLUDE_DIR}
+)
+
+if(USE_DESKTOP)
+    if(TARGET SDL2::SDL2)
+        target_link_libraries(${PROJECT_NAME}_platform PUBLIC SDL2::SDL2)
+    else()
+        target_include_directories(${PROJECT_NAME}_platform PRIVATE ${SDL2_INCLUDE_DIRS})
+        target_link_libraries(${PROJECT_NAME}_platform PUBLIC ${SDL2_LIBRARIES})
+    endif()
+else()
+    target_include_directories(${PROJECT_NAME}_platform PRIVATE ${ALSA_INCLUDE_DIR})
+    target_link_libraries(${PROJECT_NAME}_platform PUBLIC ${ALSA_LIBRARY})
+endif()
 
 # ====================================================
 # Model sources

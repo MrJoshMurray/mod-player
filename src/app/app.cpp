@@ -14,9 +14,11 @@
 #include "screenshot_service.h"
 #include "screen_manager.h"
 #include "base_viewmodel.h"
+#include "tracker_viewmodel.h"
 #include "theme.h"
 #include "toast.h"
 
+#include <algorithm>
 #include <cstdlib>
 #include <filesystem>
 #include <memory>
@@ -47,7 +49,7 @@
 #endif
 
 #ifndef APP_CONFIG_FILE
-#define APP_CONFIG_FILE "template-app.conf"
+#define APP_CONFIG_FILE "mod-player.conf"
 #endif
 
 namespace app {
@@ -72,13 +74,13 @@ std::string writable_config_path() {
     if (const char* xdg_config_home = std::getenv("XDG_CONFIG_HOME")) {
         const std::filesystem::path root(xdg_config_home);
         if (!root.empty() && root.is_absolute()) {
-            return (root / "template-app" / "template-app.conf").string();
+            return (root / "mod-player" / "mod-player.conf").string();
         }
     }
     if (const char* home = std::getenv("HOME")) {
         const std::filesystem::path root(home);
         if (!root.empty() && root.is_absolute()) {
-            return (root / ".config" / "template-app" / "template-app.conf").string();
+            return (root / ".config" / "mod-player" / "mod-player.conf").string();
         }
     }
     return APP_CONFIG_FILE;
@@ -110,8 +112,11 @@ void persist_dark_mode_observer(lv_observer_t* observer, lv_subject_t* subject) 
 
 class ShortcutController {
 public:
-    ShortcutController(viewmodel::BaseViewModel& view_model, AssetManager& assets)
+        ShortcutController(viewmodel::BaseViewModel& view_model,
+                                             viewmodel::TrackerViewModel& tracker_view_model,
+                                             AssetManager& assets)
         : view_model_(view_model),
+                    tracker_view_model_(tracker_view_model),
           toast_(std::make_unique<view::widgets::Toast>(lv_layer_top(), view_model, assets)),
           help_popup_(std::make_unique<view::widgets::HelpPopup>(lv_layer_top(), view_model, assets)) {
         toast_->build();
@@ -162,10 +167,46 @@ private:
             return true;
         }
 
+        if (key == platform::kKeyVolumeDown || key == platform::kKeyVolumeUp) {
+            if (!long_pressed) {
+                const int delta = key == platform::kKeyVolumeUp ? 5 : -5;
+                const auto volume = tracker_view_model_.adjust_volume(delta);
+                toast_->show("Volume: " + std::to_string(volume) + "%",
+                             view::widgets::ToastTone::Default,
+                             900);
+            }
+            return true;
+        }
+
+        if (key == platform::kKeyMute) {
+            if (!long_pressed) {
+                const auto muted = tracker_view_model_.toggle_mute();
+                toast_->show(muted ? "Muted" : "Unmuted",
+                             view::widgets::ToastTone::Default,
+                             900);
+            }
+            return true;
+        }
+
         if (help_popup_->visible()) {
             if (key == LV_KEY_ESC && !long_pressed) {
                 help_popup_->hide();
             }
+            return true;
+        }
+
+        if (!long_pressed) {
+            if (key == 'u' || key == 'U') {
+                view_model_.set_dark_mode(true);
+                return true;
+            }
+            if (key == 'i' || key == 'I') {
+                view_model_.set_dark_mode(false);
+                return true;
+            }
+        }
+
+        if (tracker_view_model_.handle_key(key, long_pressed)) {
             return true;
         }
 
@@ -198,6 +239,7 @@ private:
     }
 
     void handle_release(uint32_t key) {
+        tracker_view_model_.handle_key_release(key);
         if (key != exit_key_pressed_) {
             return;
         }
@@ -228,6 +270,7 @@ private:
     }
 
     viewmodel::BaseViewModel& view_model_;
+    viewmodel::TrackerViewModel& tracker_view_model_;
     std::unique_ptr<view::widgets::Toast> toast_;
     std::unique_ptr<view::widgets::HelpPopup> help_popup_;
     uint32_t exit_key_pressed_{0};
@@ -270,7 +313,7 @@ lv_display_t* init_device_display() {
 
 int Application::run() {
     logger::Logger::init();
-    logger::Logger::set_tag("template");
+    logger::Logger::set_tag("mod-player");
 
     lv_init();
 
@@ -311,6 +354,9 @@ int Application::run() {
         return 1;
     }
 
+    viewmodel::TrackerViewModel tracker_view_model;
+    tracker_view_model.start();
+
     auto* standard_font = assets.load_standard_font(14);
     view::apply_lvgl_theme(display,
                            view_model.is_dark_mode(),
@@ -320,9 +366,9 @@ int Application::run() {
     simulator_frame.bind_dark_mode(view_model.dark_mode_subject());
 #endif
 
-    ScreenManager screen_manager(view_model, assets);
+    ScreenManager screen_manager(view_model, tracker_view_model, assets);
     screen_manager.start();
-    ShortcutController shortcuts(view_model, assets);
+    ShortcutController shortcuts(view_model, tracker_view_model, assets);
 
     DarkModePersistence dark_mode_persistence{user_config_path, view_model.is_dark_mode()};
     auto* dark_mode_observer = lv_subject_add_observer(view_model.dark_mode_subject(),
@@ -336,13 +382,18 @@ int Application::run() {
 
     LOG_INFO("LVGL app started at {}x{}", lv_display_get_horizontal_resolution(display),
              lv_display_get_vertical_resolution(display));
+#if USE_DESKTOP
+    constexpr uint32_t kMaxHandlerSleepMs = 10;
+#else
+    constexpr uint32_t kMaxHandlerSleepMs = 50;
+#endif
     while (running
 #if USE_DESKTOP
            && simulator_frame.process_events()
 #endif
     ) {
-        lv_timer_handler();
-        lv_delay_ms(5);
+        const auto next_timer_ms = lv_timer_handler();
+        lv_delay_ms(std::max(1U, std::min(next_timer_ms, kMaxHandlerSleepMs)));
     }
 
     if (quit_observer) {

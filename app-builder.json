@@ -1,21 +1,21 @@
 {
-  "app_name": "Template",
-  "package_name": "cardputerzero-utility",
+  "app_name": "Mod Player",
+  "package_name": "mod-player",
   "version": "0.2.1",
-  "description": "Template Application for CardputerZero",
+  "description": "Tracker module player for CardputerZero",
 
   "store": {
-    "summary": "TODO: one line about your app (placeholders are auto-rejected)",
-    "description": "TODO: a longer description for the store detail page. Every TODO field in this store section must be replaced before publishing — the store validator rejects unedited template metadata.",
-    "categories": ["TODO: pick 1-2 real categories from docs/APP_BUILDER_JSON.md"],
+    "summary": "Play tracker modules with live, PCM-driven visualizers.",
+    "description": "Browse and play tracker modules from your Music folder. Skip between tracks, seek while holding navigation keys, adjust volume or mute, and switch between spectrum, oscilloscope, and waterfall visualizers. No music is bundled; put your modules in Music or any subfolder.",
+    "categories": ["Media"],
     "screenshots": [
       "screenshot/app-simulator-dark-darwin.png",
       "screenshot/app-simulator-light-darwin.png"
     ],
-    "icon": "assets/images/cardputerzero-utility.png",
-    "license": "TODO: an SPDX id, e.g. MIT",
-    "source_repo": "https://github.com/CardputerZero/Template",
-    "author": { "github": "TODO-your-github-login", "display_name": "TODO: Your Name" },
+    "icon": "assets/images/mod-player-store.png",
+    "license": "MIT",
+    "source_repo": "https://github.com/MrJoshMurray/mod-player",
+    "author": { "github": "MrJoshMurray", "display_name": "MrJoshua" },
     "share_code": "TODO",
     "permissions": {
       "camera": false,
