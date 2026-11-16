@@ -60,9 +60,10 @@ Current player UI:
 - Provides spectrum, oscilloscope, and waterfall views computed from decoded PCM.
 - Uses SDL2 output in the desktop simulator and ALSA output on Linux devices.
 
-Supported extensions: `.mod`, `.s3m`, `.xm`, `.it`, `.mptm`, `.med`, `.669`, `.stm`, `.okt`, and
-`.mo3`. MO3 playback depends on the codecs enabled in the installed libopenmpt build and is not a
-required capability.
+The scanner uses the supported-extension list reported by the linked libopenmpt build, rather than
+maintaining a separate file-extension whitelist. The available formats can therefore vary between
+desktop and device builds. The device package currently targets libopenmpt 0.7.13; compressed formats
+such as MO3 depend on the codecs enabled in that build.
 
 The player searches recursively under `$CARDPUTERZERO_MUSIC_DIR`, then `$XDG_MUSIC_DIR`, then the
 `XDG_MUSIC_DIR` entry in `user-dirs.dirs`, and finally `~/Music`. Modules can be placed directly in

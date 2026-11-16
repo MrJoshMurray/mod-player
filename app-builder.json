@@ -6,7 +6,7 @@
 
   "store": {
     "summary": "Play tracker modules with live, PCM-driven visualizers.",
-    "description": "Browse and play tracker modules from your Music folder. Skip between tracks, seek while holding navigation keys, adjust volume or mute, and switch between spectrum, oscilloscope, and waterfall visualizers. No music is bundled; put your modules in Music or any subfolder.",
+    "description": "Browse and play tracker modules in your Music folder or its subfolders. Supports the formats reported by the installed libopenmpt build, including classic MOD, S3M, XM, and IT modules. Skip tracks, seek, adjust volume or mute, and switch between spectrum, oscilloscope, and waterfall visualizers. No music is bundled.",
     "categories": ["Media"],
     "screenshots": [
       "screenshot/app-simulator-dark-darwin.png",

@@ -13,6 +13,7 @@
 #include <mutex>
 #include <sstream>
 #include <system_error>
+#include <unordered_set>
 #include <utility>
 
 namespace platform {
@@ -103,13 +104,15 @@ std::filesystem::path default_music_directory() {
 }
 
 bool is_supported_module(const std::filesystem::path& path) {
-    static const std::array<const char*, 10> extensions = {
-        ".mod", ".s3m", ".xm", ".it", ".mptm", ".med", ".669", ".stm", ".okt", ".mo3",
-    };
+    static const auto extensions = [] {
+        std::unordered_set<std::string> supported;
+        for (auto extension : openmpt::get_supported_extensions()) {
+            supported.insert("." + lowercase(std::move(extension)));
+        }
+        return supported;
+    }();
     const auto extension = lowercase(path.extension().string());
-    return std::find_if(extensions.begin(), extensions.end(), [&](const char* candidate) {
-               return extension == candidate;
-           }) != extensions.end();
+    return extensions.find(extension) != extensions.end();
 }
 
 ModulePlayer::ModulePlayer(std::filesystem::path music_directory) {
